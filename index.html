@@ -751,6 +751,7 @@
         <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
         <span id="progressLabel">0 / 0 posted</span>
       </div>
+      <span id="syncIndicator" style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;"></span>
       <button class="masthead-btn" id="signOut">Sign out</button>
     </div>
   </header>
@@ -783,30 +784,146 @@
   const PASSWORD = 'Admin/2022';
   const AUTH_KEY = 'et-auth-v1';
 
-  // ── Cookie-based storage (survives Safari ITP) ──────────────────────────────
+  // ── GitHub API Sync (cross-device) + Cookie fallback ───────────────────────
+  const GH_OWNER = 'Laenethy';
+  const GH_REPO  = 'Editorial-Tools';
+  const GH_FILE  = 'status.json';
+  const GH_BRANCH = 'main';
+  // Personal Access Token (read+write contents) — fine-grained, repo-scoped
+  const GH_TOKEN = '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';   // ← paste your GitHub token here
+
   function setCookie(name, value, days) {
     const d = new Date();
     d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Strict`;
+    try {
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Strict`;
+    } catch(e) {}
   }
   function getCookie(name) {
     const prefix = name + '=';
     for (const part of document.cookie.split(';')) {
       const c = part.trim();
-      if (c.startsWith(prefix)) return decodeURIComponent(c.substring(prefix.length));
+      if (c.startsWith(prefix)) {
+        try { return decodeURIComponent(c.substring(prefix.length)); } catch(e) { return null; }
+      }
     }
     return null;
   }
-  const COOKIE_NAME = 'et_status_v1';
-  function loadStatus() {
+  const COOKIE_NAME = 'et_status_v2';
+
+  // Local cache of the GitHub file's SHA (needed for updates)
+  let _ghSha = null;
+
+  async function ghFetch(method, body) {
+    if (!GH_TOKEN) return null;
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+    const headers = {
+      'Authorization': `token ${GH_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    };
+    try {
+      const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      if (!res.ok) return null;
+      return res.json();
+    } catch(e) { return null; }
+  }
+
+  async function loadStatusRemote() {
+    const data = await ghFetch('GET');
+    if (!data || !data.content) return null;
+    _ghSha = data.sha;
+    try {
+      const json = atob(data.content.replace(/\s/g, ''));
+      return JSON.parse(json);
+    } catch(e) { return null; }
+  }
+
+  async function saveStatusRemote(status) {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(status, null, 2))));
+    const body = {
+      message: 'Update post status',
+      content,
+      branch: GH_BRANCH,
+      ..._ghSha ? { sha: _ghSha } : {},
+    };
+    const data = await ghFetch('PUT', body);
+    if (data && data.content) _ghSha = data.content.sha;
+  }
+
+  function loadStatusLocal() {
     try {
       const raw = getCookie(COOKIE_NAME);
       if (raw) return JSON.parse(raw);
     } catch(e) {}
     return {};
   }
+  function saveStatusLocal(status) {
+    try {
+      // Limit cookie size: only store keys (values are always true)
+      const keys = Object.keys(status);
+      setCookie(COOKIE_NAME, JSON.stringify(keys), 365);
+    } catch(e) {}
+  }
+  function loadStatusFromCookieKeys() {
+    try {
+      const raw = getCookie(COOKIE_NAME);
+      if (!raw) return {};
+      const keys = JSON.parse(raw);
+      if (!Array.isArray(keys)) {
+        // Legacy format (old cookie was object)
+        return typeof keys === 'object' ? keys : {};
+      }
+      const obj = {};
+      keys.forEach(k => { obj[k] = true; });
+      return obj;
+    } catch(e) {}
+    return {};
+  }
+
+  async function loadStatus() {
+    // Try GitHub first
+    const remote = await loadStatusRemote();
+    if (remote) {
+      saveStatusLocal(remote);   // keep cookie in sync as backup
+      return remote;
+    }
+    // Fallback to cookie
+    return loadStatusFromCookieKeys();
+  }
+
+  function showSync(msg, color) {
+    const el = document.getElementById('syncIndicator');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = color || 'rgba(255,255,255,0.7)';
+  }
+
+  let _saveTimer = null;
   function saveStatus(status) {
-    try { setCookie(COOKIE_NAME, JSON.stringify(status), 365); } catch(e) {}
+    saveStatusLocal(status);
+    if (GH_TOKEN) showSync('⟳ Saving…');
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(async () => {
+      await saveStatusRemote(status);
+      if (GH_TOKEN) { showSync('✓ Synced', 'rgba(255,255,255,0.95)'); setTimeout(() => showSync(''), 2500); }
+    }, 800);
+  }
+
+  // Poll for remote changes every 30 s (picks up posts from other devices)
+  function startSyncPolling() {
+    setInterval(async () => {
+      if (!GH_TOKEN) return;
+      const remote = await loadStatusRemote();
+      if (!remote) return;
+      const remoteKeys = Object.keys(remote).sort().join(',');
+      const localKeys  = Object.keys(state.status).sort().join(',');
+      if (remoteKeys !== localKeys) {
+        state.status = remote;
+        saveStatusLocal(remote);
+        render();
+      }
+    }, 30000);
   }
 
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -884,10 +1001,11 @@
   }
 
   function updateProgress() {
-    const totalSlots = SCHEDULE.filter(s => !s.rest).length * 3;
-    const done = Object.keys(state.status).length;
-    const pct = totalSlots ? Math.round((done / totalSlots) * 100) : 0;
-    document.getElementById('progressLabel').textContent = `${done} / ${totalSlots} posted`;
+    const contentDays = SCHEDULE.filter(s => !s.rest);
+    const totalDays = contentDays.length;                          // 154 content days
+    const postedDays = contentDays.filter(e => isDayFullyPosted(e)).length;
+    const pct = totalDays ? Math.round((postedDays / totalDays) * 100) : 0;
+    document.getElementById('progressLabel').textContent = `${postedDays} / ${totalDays} posted`;
     document.getElementById('progressFill').style.width = pct + '%';
   }
 
@@ -1123,28 +1241,29 @@
   }
 
   // ── Init ────────────────────────────────────────────────────────────────────
-  function initApp() {
+  async function initApp() {
     if (state.initialized) return;
     state.initialized = true;
-    state.status = loadStatus();
-    // Show loading state
     document.getElementById('main').innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);font-size:14px;">Loading content…</div>';
-    fetch('/posts.json')
-      .then(r => r.json())
-      .then(data => {
-        DATA = data;
-        SCHEDULE = DATA.schedule;
-        META = DATA.meta;
-        const today = new Date(); today.setHours(0,0,0,0);
-        const startDay = parseDate(META.start_date);
-        state.weekStart = startOfWeek(today < startDay ? startDay : today);
-        bindNav();
-        render();
-      })
-      .catch(err => {
-        document.getElementById('main').innerHTML = '<div style="text-align:center;padding:60px;color:#dc2626;">Failed to load content. Please refresh.</div>';
-        console.error('Failed to load posts.json:', err);
-      });
+    // Load status and posts in parallel
+    const [status, postsRes] = await Promise.all([
+      loadStatus(),
+      fetch('/posts.json').then(r => r.json()).catch(() => null),
+    ]);
+    state.status = status || {};
+    if (!postsRes) {
+      document.getElementById('main').innerHTML = '<div style="text-align:center;padding:60px;color:#dc2626;">Failed to load content. Please refresh.</div>';
+      return;
+    }
+    DATA = postsRes;
+    SCHEDULE = DATA.schedule;
+    META = DATA.meta;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const startDay = parseDate(META.start_date);
+    state.weekStart = startOfWeek(today < startDay ? startDay : today);
+    bindNav();
+    render();
+    startSyncPolling();
   }
 
   function bindNav() {
