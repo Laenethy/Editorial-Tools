@@ -835,17 +835,27 @@
     } catch(e) { return null; }
   }
 
+  async function upsertKey(k) {
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}`, {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ key: k }),
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        console.error('Supabase upsert error:', res.status, err);
+      }
+    } catch(e) { console.error('upsertKey failed:', e); }
+  }
+
   async function saveStatusRemote(status) {
     const keys = Object.keys(status);
     if (!keys.length) return;
-    try {
-      const rows = keys.map(k => ({ key: k }));
-      await fetch(`${SB_URL}/rest/v1/${SB_TABLE}`, {
-        method: 'POST',
-        headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(rows),
-      });
-    } catch(e) {}
+    // Send each key individually for reliability
+    for (const k of keys) {
+      await upsertKey(k);
+    }
   }
 
   async function deleteStatusRemote(key) {
