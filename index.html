@@ -33,7 +33,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Raleway:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root{
@@ -1397,10 +1397,10 @@
 
   // ── Image Generator ──────────────────────────────────────────────────────────
   const APP_BRANDS = {
-    authorlify:     { name: 'Authorlify',      grad1: '#7c3aed', grad2: '#4c1d95', accent: '#f59e0b', url: 'authorlify.com' },
-    edithority:     { name: 'Edithority',      grad1: '#db2777', grad2: '#9d174d', accent: '#fbbf24', url: 'edithority.com' },
-    editorialcheck: { name: 'Editorial Check', grad1: '#6D28D9', grad2: '#4c1d95', accent: '#f59e0b', url: 'editorialcheck.com' },
-    editorial_tools:{ name: 'Editorial Tools', grad1: '#ea580c', grad2: '#9a3412', accent: '#fbbf24', url: 'linktr.ee/EditorialTools' },
+    authorlify:     { name: 'Authorlify',      grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'authorlify.com' },
+    edithority:     { name: 'Edithority',      grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'edithority.com' },
+    editorialcheck: { name: 'Editorial Check', grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'editorialcheck.com' },
+    editorial_tools:{ name: 'Editorial Tools', grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'linktr.ee/EditorialTools' },
   };
 
   const IMG_FORMATS = [
@@ -1448,97 +1448,147 @@
   function _drawOnCanvas(canvas, brand, platform, postText, s) {
     const W = canvas.width, H = canvas.height;
     const ctx = canvas.getContext('2d');
+    const cx = W / 2;
+    const cy = H / 2;
+    const isX = platform === 'x';
+    const pad = 64*s;
+    const narrowW = W * 0.70;
 
-    // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, W * 0.6, H);
-    grad.addColorStop(0, brand.grad1);
-    grad.addColorStop(1, brand.grad2);
-    ctx.fillStyle = grad;
+    // Background
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, brand.grad1);
+    bg.addColorStop(1, brand.grad2);
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Subtle circle decoration top-right
+    // Decorative circles
     ctx.save();
-    ctx.globalAlpha = 0.12;
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(W + 80*s, -80*s, 320*s, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(W - 20*s, 80*s, 160*s, 0, Math.PI*2);
-    ctx.fill();
+    ctx.globalAlpha = 0.12; ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(W - 60*s, -60*s, 300*s, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 0.07;
+    ctx.beginPath(); ctx.arc(-50*s, H + 50*s, 240*s, 0, Math.PI*2); ctx.fill();
     ctx.restore();
 
-    // Bottom accent bar
-    ctx.fillStyle = brand.accent;
-    ctx.fillRect(0, H - 8*s, W, 8*s);
+    // Hook only
+    const hook = postText.split('\n').map(l => l.trim()).filter(l => l)[0] || '';
+    const platLabel = platform === 'x' ? '𝕏 Twitter' : platform === 'threads' ? 'Threads' : 'Instagram';
 
-    const pad = 64*s;
-    const isX = platform === 'x';
+    // ── FOOTER (bottom) ─────────────────────────────────────────
+    const footerH = 80*s;
+    const footerY = H - footerH;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(0, footerY, W, footerH);
+    ctx.font = `600 ${20*s}px Montserrat, sans-serif`;
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.90)';
+    ctx.fillText(brand.url, cx, footerY + footerH/2);
 
-    // App name badge (top left)
-    ctx.font = `700 ${13*s}px Inter, sans-serif`;
-    ctx.textBaseline = 'middle';
-    const badgeTxt = brand.name.toUpperCase();
-    const badgePad = 14*s;
-    const badgeW = ctx.measureText(badgeTxt).width + badgePad*2;
-    const badgeH = 30*s;
-    const badgeX = pad, badgeY = pad;
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 6*s); ctx.fill();
+    // ── TOP BAR ─────────────────────────────────────────────────
+    const topH = 120*s;
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
+    ctx.fillRect(0, 0, W, topH);
+
+    // App badge — centered
+    ctx.font = `700 ${18*s}px Montserrat, sans-serif`;
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    const bTxt = brand.name.toUpperCase();
+    const bPad = 20*s, bH = 46*s;
+    const bW = ctx.measureText(bTxt).width + bPad * 2;
+    const bY = (topH - bH) / 2;
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    roundRect(ctx, cx - bW/2, bY, bW, bH, 8*s); ctx.fill();
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(badgeTxt, badgeX + badgePad, badgeY + badgeH/2);
+    ctx.fillText(bTxt, cx, bY + bH/2);
 
-    // Accent dot next to badge
+    // Platform name — centered below badge
+    ctx.font = `700 ${22*s}px Montserrat, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = brand.accent;
-    ctx.beginPath();
-    ctx.arc(badgeX + badgeW + 12*s, badgeY + badgeH/2, 5*s, 0, Math.PI*2);
-    ctx.fill();
+    ctx.fillText(platLabel, cx, bY + bH + 18*s);
 
-    // Extract lines — skip hashtags and empty
-    const rawLines = postText.split('\n').filter(l => l.trim() && !l.startsWith('#') && !l.startsWith('http') && !l.includes('linktr.ee') && !l.includes('.com ·'));
-    const hook = rawLines[0] || '';
-    const body = rawLines.slice(1).join(' ').trim();
+    // ── HOOK — fills middle space ────────────────────────────────
+    const hookAreaY = topH + 40*s;
+    const hookAreaH = footerY - hookAreaY - 40*s;
 
-    // Hook — large bold white
-    const hookSize = isX ? 38*s : 46*s;
-    const hookLineH = isX ? 50*s : 60*s;
-    const hookY = badgeY + badgeH + 48*s;
-    const maxW = W - pad*2;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `800 ${hookSize}px Inter, sans-serif`;
-    ctx.textBaseline = 'top';
-    const hookLinesN = wrapText(ctx, hook, pad, hookY, maxW, hookLineH);
-
-    // Accent line under hook
-    const lineY = hookY + hookLinesN * hookLineH + 24*s;
-    ctx.fillStyle = brand.accent;
-    ctx.fillRect(pad, lineY, 48*s, 4*s);
-
-    // Body text
-    if (body) {
-      const bodySize = isX ? 18*s : 22*s;
-      const bodyLineH = isX ? 28*s : 34*s;
-      const bodyY = lineY + 24*s;
-      ctx.fillStyle = 'rgba(255,255,255,0.88)';
-      ctx.font = `400 ${bodySize}px Inter, sans-serif`;
-      wrapText(ctx, body, pad, bodyY, maxW, bodyLineH);
+    // Auto-fit: find biggest font that fits
+    let hookSize = isX ? 120*s : 160*s;
+    while (hookSize > 40*s) {
+      ctx.font = `800 ${hookSize}px Montserrat, sans-serif`;
+      const words = hook.split(' ');
+      let line = '', lines = 0;
+      for (let w of words) {
+        const t = line ? line + ' ' + w : w;
+        if (ctx.measureText(t).width > narrowW && line) { lines++; line = w; }
+        else line = t;
+      }
+      if (line) lines++;
+      if (lines * hookSize * 1.22 <= hookAreaH) break;
+      hookSize -= 4*s;
     }
+    const hookLineH = hookSize * 1.22;
 
-    // Bottom: URL left, platform right
-    const botY = H - 8*s - 48*s;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillRect(pad, botY - 1, W - pad*2, 1*s);
+    // Split into lines
+    ctx.font = `800 ${hookSize}px Montserrat, sans-serif`;
+    const words = hook.split(' ');
+    let line = '', hookLines = [];
+    for (let w of words) {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > narrowW && line) { hookLines.push(line); line = w; }
+      else line = t;
+    }
+    if (line) hookLines.push(line);
 
-    ctx.font = `500 ${13*s}px Inter, sans-serif`;
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.fillText(brand.url, pad, botY + 24*s);
+    const textH = hookLines.length * hookLineH;
+    const hookY = hookAreaY + (hookAreaH - textH) / 2;
 
-    const platLabel = platform === 'x' ? '𝕏' : platform === 'threads' ? 'Threads' : 'Instagram';
-    ctx.textAlign = 'right';
-    ctx.fillStyle = brand.accent;
-    ctx.fillText(platLabel, W - pad, botY + 24*s);
-    ctx.textAlign = 'left';
+    // Draw with white→accent gradient per line
+    hookLines.forEach((lineText, i) => {
+      const y = hookY + i * hookLineH;
+      const tw = ctx.measureText(lineText).width;
+      const tg = ctx.createLinearGradient(cx - tw/2, y, cx + tw/2, y);
+      tg.addColorStop(0, '#ffffff');
+      tg.addColorStop(1, brand.accent);
+      ctx.fillStyle = tg;
+      ctx.font = `800 ${hookSize}px Montserrat, sans-serif`;
+      ctx.textBaseline = 'top'; ctx.textAlign = 'center';
+      ctx.fillText(lineText, cx, y);
+    });
+  }
+  function countLinesFixed(ctx, text, maxW, size) {
+    ctx.font = `800 ${size}px 'Playfair Display', serif`;
+    const words = text.split(' ');
+    let line = '', n = 0;
+    for (let w of words) {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > maxW && line) { n++; line = w; }
+      else line = t;
+    }
+    if (line) n++;
+    return n;
+  }
+  function countLines(ctx, text, maxW, size) {
+    ctx.font = `800 ${size}px 'Playfair Display', serif`;
+    const words = text.split(' ');
+    let line = '', lines = 0;
+    for (let w of words) {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > maxW && line) { lines++; line = w; }
+      else line = t;
+    }
+    if (line) lines++;
+    return lines;
+  }
+  function wrapTextCenter(ctx, text, cx, y, maxW, lineH) {
+    const words = text.split(' ');
+    let line = '', lines = [];
+    for (let w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; }
+      else line = test;
+    }
+    if (line) lines.push(line);
+    lines.forEach((l, i) => ctx.fillText(l, cx, y + i * lineH));
+    return lines.length;
   }
   function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
