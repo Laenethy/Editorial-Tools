@@ -1397,10 +1397,10 @@
 
   // ── Image Generator ──────────────────────────────────────────────────────────
   const APP_BRANDS = {
-    authorlify:     { name: 'Authorlify',      color: '#7c3aed', text: '#ffffff', url: 'authorlify.com' },
-    edithority:     { name: 'Edithority',      color: '#db2777', text: '#ffffff', url: 'edithority.com' },
-    editorialcheck: { name: 'Editorial Check', color: '#059669', text: '#ffffff', url: 'editorialcheck.com' },
-    editorial_tools:{ name: 'Editorial Tools', color: '#ea580c', text: '#ffffff', url: 'linktr.ee/EditorialTools' },
+    authorlify:     { name: 'Authorlify',      grad1: '#7c3aed', grad2: '#4c1d95', accent: '#f59e0b', url: 'authorlify.com' },
+    edithority:     { name: 'Edithority',      grad1: '#db2777', grad2: '#9d174d', accent: '#fbbf24', url: 'edithority.com' },
+    editorialcheck: { name: 'Editorial Check', grad1: '#6D28D9', grad2: '#4c1d95', accent: '#f59e0b', url: 'editorialcheck.com' },
+    editorial_tools:{ name: 'Editorial Tools', grad1: '#ea580c', grad2: '#9a3412', accent: '#fbbf24', url: 'linktr.ee/EditorialTools' },
   };
 
   const IMG_FORMATS = [
@@ -1432,83 +1432,114 @@
     const brand = APP_BRANDS[entry.app] || APP_BRANDS.editorial_tools;
     const W = fmt.w, H = fmt.h;
     const scale = fmt.display / W;
-
     canvas.width  = fmt.display;
     canvas.height = Math.round(H * scale);
+    _drawOnCanvas(canvas, brand, platform, postText, scale);
+  }
 
+  function drawImageFull(canvas, entry, platform, postText) {
+    const fmt = IMG_FORMATS.find(f => f.id === platform);
+    const brand = APP_BRANDS[entry.app] || APP_BRANDS.editorial_tools;
+    canvas.width  = fmt.w;
+    canvas.height = fmt.h;
+    _drawOnCanvas(canvas, brand, platform, postText, 1);
+  }
+
+  function _drawOnCanvas(canvas, brand, platform, postText, s) {
+    const W = canvas.width, H = canvas.height;
     const ctx = canvas.getContext('2d');
-    const s = scale;
 
     // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, W*s, H*s);
-    grad.addColorStop(0, brand.color);
-    grad.addColorStop(1, shadeColor(brand.color, -30));
+    const grad = ctx.createLinearGradient(0, 0, W * 0.6, H);
+    grad.addColorStop(0, brand.grad1);
+    grad.addColorStop(1, brand.grad2);
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W*s, H*s);
+    ctx.fillRect(0, 0, W, H);
 
-    // Subtle pattern overlay
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    for (let i = 0; i < W*s; i += 40*s) {
-      ctx.fillRect(i, 0, 1*s, H*s);
-    }
-
-    // White card
-    const pad = 48*s, cardR = 20*s;
-    const cardX = pad, cardY = pad;
-    const cardW = W*s - pad*2, cardH = H*s - pad*2;
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    roundRect(ctx, cardX, cardY, cardW, cardH, cardR);
-    ctx.fill();
-
-    // App badge
-    const badgeH = 36*s, badgeR = 18*s;
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    const badgeW = ctx.measureText(brand.name).width + 32*s;
-    ctx.font = `bold ${13*s}px Inter, sans-serif`;
-    const bw = ctx.measureText(brand.name).width + 32*s;
-    roundRect(ctx, cardX + 24*s, cardY + 24*s, bw, badgeH, badgeR);
-    ctx.fill();
+    // Subtle circle decoration top-right
+    ctx.save();
+    ctx.globalAlpha = 0.12;
     ctx.fillStyle = '#ffffff';
-    ctx.font = `bold ${13*s}px Inter, sans-serif`;
+    ctx.beginPath();
+    ctx.arc(W + 80*s, -80*s, 320*s, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(W - 20*s, 80*s, 160*s, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Bottom accent bar
+    ctx.fillStyle = brand.accent;
+    ctx.fillRect(0, H - 8*s, W, 8*s);
+
+    const pad = 64*s;
+    const isX = platform === 'x';
+
+    // App name badge (top left)
+    ctx.font = `700 ${13*s}px Inter, sans-serif`;
     ctx.textBaseline = 'middle';
-    ctx.fillText(brand.name, cardX + 40*s, cardY + 24*s + badgeH/2);
-
-    // Extract hook (first line) and body
-    const lines = postText.split('\n').filter(l => l.trim() && !l.startsWith('#'));
-    const hook = lines[0] || '';
-    const body = lines.slice(1).join(' ').trim();
-
-    // Hook text (large)
+    const badgeTxt = brand.name.toUpperCase();
+    const badgePad = 14*s;
+    const badgeW = ctx.measureText(badgeTxt).width + badgePad*2;
+    const badgeH = 30*s;
+    const badgeX = pad, badgeY = pad;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 6*s); ctx.fill();
     ctx.fillStyle = '#ffffff';
-    ctx.font = `800 ${platform === 'x' ? 22*s : 26*s}px Inter, sans-serif`;
+    ctx.fillText(badgeTxt, badgeX + badgePad, badgeY + badgeH/2);
+
+    // Accent dot next to badge
+    ctx.fillStyle = brand.accent;
+    ctx.beginPath();
+    ctx.arc(badgeX + badgeW + 12*s, badgeY + badgeH/2, 5*s, 0, Math.PI*2);
+    ctx.fill();
+
+    // Extract lines — skip hashtags and empty
+    const rawLines = postText.split('\n').filter(l => l.trim() && !l.startsWith('#') && !l.startsWith('http') && !l.includes('linktr.ee') && !l.includes('.com ·'));
+    const hook = rawLines[0] || '';
+    const body = rawLines.slice(1).join(' ').trim();
+
+    // Hook — large bold white
+    const hookSize = isX ? 38*s : 46*s;
+    const hookLineH = isX ? 50*s : 60*s;
+    const hookY = badgeY + badgeH + 48*s;
+    const maxW = W - pad*2;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `800 ${hookSize}px Inter, sans-serif`;
     ctx.textBaseline = 'top';
-    const hookLines = wrapText(ctx, hook, cardX + 32*s, cardY + 80*s, cardW - 64*s, 36*s);
+    const hookLinesN = wrapText(ctx, hook, pad, hookY, maxW, hookLineH);
+
+    // Accent line under hook
+    const lineY = hookY + hookLinesN * hookLineH + 24*s;
+    ctx.fillStyle = brand.accent;
+    ctx.fillRect(pad, lineY, 48*s, 4*s);
 
     // Body text
     if (body) {
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.font = `${platform === 'x' ? 14*s : 16*s}px Inter, sans-serif`;
-      const bodyY = cardY + 80*s + hookLines * 36*s + 20*s;
-      wrapText(ctx, body, cardX + 32*s, bodyY, cardW - 64*s, 24*s);
+      const bodySize = isX ? 18*s : 22*s;
+      const bodyLineH = isX ? 28*s : 34*s;
+      const bodyY = lineY + 24*s;
+      ctx.fillStyle = 'rgba(255,255,255,0.88)';
+      ctx.font = `400 ${bodySize}px Inter, sans-serif`;
+      wrapText(ctx, body, pad, bodyY, maxW, bodyLineH);
     }
 
-    // Bottom bar
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(cardX, cardY + cardH - 52*s, cardW, 1*s);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.font = `${12*s}px Inter, sans-serif`;
-    ctx.textBaseline = 'middle';
-    ctx.fillText(brand.url, cardX + 32*s, cardY + cardH - 26*s);
-
-    // Platform icon text
-    const plat = platform === 'x' ? 'X' : platform === 'threads' ? 'Threads' : 'Instagram';
+    // Bottom: URL left, platform right
+    const botY = H - 8*s - 48*s;
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = `${11*s}px Inter, sans-serif`;
+    ctx.fillRect(pad, botY - 1, W - pad*2, 1*s);
+
+    ctx.font = `500 ${13*s}px Inter, sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText(brand.url, pad, botY + 24*s);
+
+    const platLabel = platform === 'x' ? '𝕏' : platform === 'threads' ? 'Threads' : 'Instagram';
     ctx.textAlign = 'right';
-    ctx.fillText(plat, cardX + cardW - 32*s, cardY + cardH - 26*s);
+    ctx.fillStyle = brand.accent;
+    ctx.fillText(platLabel, W - pad, botY + 24*s);
     ctx.textAlign = 'left';
   }
-
   function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -1621,61 +1652,6 @@
     return section;
   }
 
-  function drawImageFull(canvas, entry, platform, postText) {
-    const fmt = IMG_FORMATS.find(f => f.id === platform);
-    const brand = APP_BRANDS[entry.app] || APP_BRANDS.editorial_tools;
-    const W = fmt.w, H = fmt.h;
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-
-    const grad = ctx.createLinearGradient(0, 0, W, H);
-    grad.addColorStop(0, brand.color);
-    grad.addColorStop(1, shadeColor(brand.color, -30));
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    for (let i = 0; i < W; i += 40) ctx.fillRect(i, 0, 1, H);
-
-    const pad = 48, cardR = 20;
-    const cardX = pad, cardY = pad, cardW = W - pad*2, cardH = H - pad*2;
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    roundRect(ctx, cardX, cardY, cardW, cardH, cardR); ctx.fill();
-
-    ctx.font = 'bold 13px Inter, sans-serif';
-    const bw = ctx.measureText(brand.name).width + 32;
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    roundRect(ctx, cardX + 24, cardY + 24, bw, 36, 18); ctx.fill();
-    ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle';
-    ctx.fillText(brand.name, cardX + 40, cardY + 24 + 18);
-
-    const lines = postText.split('\n').filter(l => l.trim() && !l.startsWith('#'));
-    const hook = lines[0] || '';
-    const body = lines.slice(1).join(' ').trim();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `800 ${platform === 'x' ? 44 : 52}px Inter, sans-serif`;
-    ctx.textBaseline = 'top';
-    const hookLines = wrapText(ctx, hook, cardX + 32, cardY + 80, cardW - 64, platform === 'x' ? 62 : 72);
-
-    if (body) {
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.font = `${platform === 'x' ? 28 : 32}px Inter, sans-serif`;
-      const bodyY = cardY + 80 + hookLines * (platform === 'x' ? 62 : 72) + 28;
-      wrapText(ctx, body, cardX + 32, bodyY, cardW - 64, platform === 'x' ? 42 : 48);
-    }
-
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(cardX, cardY + cardH - 52, cardW, 1);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.font = '24px Inter, sans-serif'; ctx.textBaseline = 'middle';
-    ctx.fillText(brand.url, cardX + 32, cardY + cardH - 26);
-    const plat = platform === 'x' ? 'X' : platform === 'threads' ? 'Threads' : 'Instagram';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '22px Inter, sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText(plat, cardX + cardW - 32, cardY + cardH - 26);
-    ctx.textAlign = 'left';
-  }
 
 </script>
 </body>
