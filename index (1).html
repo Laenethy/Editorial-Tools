@@ -1,0 +1,1708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Editorial Tools — Content Dashboard</title>
+<meta name="theme-color" content="#6D28D9" />
+<meta name="description" content="Editorial Tools — 180-Day Content Dashboard for Authorlify, Edithority & Editorial Check." />
+
+<!-- PWA manifest -->
+<link rel="manifest" href="/manifest.json" />
+
+<!-- Favicons -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+
+<!-- Apple / iOS home-screen -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/icon-152.png" />
+<link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Editorial Tools" />
+
+<!-- Android / Chrome -->
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name" content="Editorial Tools" />
+
+<!-- Windows tile -->
+<meta name="msapplication-TileColor" content="#6D28D9" />
+<meta name="msapplication-TileImage" content="/icon-144.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Raleway:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --purple: #6D28D9;
+    --purple-deep: #5b21b6;
+    --purple-light: #7c3aed;
+    --purple-soft: #ede9fe;
+    --purple-softer: #f5f3ff;
+    --ink: #1f1b2e;
+    --ink-2: #3b3456;
+    --muted: #6b6380;
+    --paper: #ffffff;
+    --bg: #fafaf9;
+    --line: #ececec;
+    --line-2: #dcdcdc;
+    --good: #16a34a;
+    --good-bg: #dcfce7;
+
+    --app-authorlify: #7c3aed;
+    --app-edithority: #db2777;
+    --app-check: #059669;
+
+    --radius: 8px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 2px rgba(20,17,28,.06);
+    --shadow: 0 4px 12px -4px rgba(20,17,28,.1);
+    --shadow-lg: 0 20px 40px -15px rgba(109,40,217,.2);
+  }
+
+  *{box-sizing:border-box}
+  html{
+    margin:0;padding:0;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
+  body{
+    margin:0;padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+    overflow-x: hidden;
+    max-width: 100vw;
+    overscroll-behavior-x: none;
+    touch-action: pan-y;
+  }
+  button{ font-family: inherit; }
+
+  /* =============== LOGIN =============== */
+  .login-screen{
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 40px 20px;
+    color: white;
+  }
+  .login-logo{
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 20px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 28px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .login-logo svg{ display:block; }
+  .login-title{
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+    text-align:center;
+  }
+  .login-sub{
+    color: rgba(255,255,255,0.85);
+    font-size: 15px;
+    margin: 0 0 40px;
+    text-align:center;
+  }
+  .login-card{
+    background: white;
+    color: var(--ink);
+    padding: 36px 36px 32px;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.3);
+  }
+  .login-card h2{
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .login-card p{
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .login-label{
+    display:block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .login-input-wrap{
+    position: relative;
+  }
+  .login-input{
+    width: 100%;
+    padding: 13px 44px 13px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 1.5px solid var(--line-2);
+    border-radius: var(--radius);
+    background: white;
+    color: var(--ink);
+    transition: border-color .15s;
+  }
+  .login-input:focus{
+    outline: none;
+    border-color: var(--purple);
+  }
+  .login-toggle{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: 0;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .login-toggle:hover{ color: var(--ink); }
+  .login-submit{
+    width: 100%;
+    padding: 14px;
+    margin-top: 18px;
+    background: var(--purple);
+    color: white;
+    border: 0;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .05s;
+  }
+  .login-submit:hover{ background: var(--purple-light); }
+  .login-submit:active{ transform: scale(0.99); }
+  .login-error{
+    margin-top: 14px;
+    color: #dc2626;
+    font-size: 13px;
+    text-align:center;
+    min-height: 18px;
+  }
+  .login-footer{
+    margin-top: 30px;
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    text-align:center;
+  }
+
+  /* =============== APP =============== */
+  .app{ display:none; }
+  .app.visible{ display:block; }
+
+  .masthead{
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
+    color: white;
+    padding: 18px 40px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 24px;
+    box-shadow: 0 2px 8px rgba(20,17,28,0.05);
+  }
+  .masthead-left{display:flex; align-items:center; gap: 14px;}
+  .masthead-logo{
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 11px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .masthead-logo svg{ display:block; }
+  .masthead-titles h1{
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .masthead-titles .sub{
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.82);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .masthead-right{
+    display:flex;
+    align-items:center;
+    gap: 18px;
+  }
+  .progress-widget{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .progress-bar{
+    width: 100px; height: 6px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill{
+    height: 100%;
+    background: white;
+    width: 0%;
+    transition: width .3s;
+  }
+  .masthead-btn{
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .masthead-btn:hover{ background: rgba(255,255,255,0.22); }
+
+  .subnav{
+    padding: 18px 40px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid var(--line);
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-wrap: wrap;
+  }
+  .view-toggle{
+    display:inline-flex;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+  .view-toggle button{
+    border:0;
+    background: transparent;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .view-toggle button.active{
+    background: var(--purple);
+    color: white;
+  }
+
+  .week-nav{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    font-size: 13.5px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .week-nav button{
+    border: 1px solid var(--line);
+    background: white;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+    transition: all .15s;
+  }
+  .week-nav button:hover:not(:disabled){ background: var(--purple-softer); border-color: var(--purple-soft); color: var(--purple-deep); }
+  .week-nav button:disabled{ opacity: 0.35; cursor: not-allowed; }
+  .week-label{
+    font-weight: 600;
+    min-width: 180px;
+    text-align: center;
+    color: var(--ink);
+  }
+
+  .filter-legend{
+    display:flex;
+    gap: 16px;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .filter-legend .dot{
+    display:inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    transform: translateY(-1px);
+  }
+
+  main{ padding: 28px 40px 80px; }
+
+  /* week view */
+  .week-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 14px;
+  }
+  .day-card{
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 18px 16px 16px;
+    min-height: 240px;
+    position: relative;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    cursor: pointer;
+    transition: all .18s ease;
+    overflow: hidden;
+  }
+  .day-card:hover{
+    border-color: var(--purple-soft);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  .day-card.rest{
+    background: var(--bg);
+    cursor: default;
+    border-style: dashed;
+  }
+  .day-card.rest:hover{ transform: none; box-shadow: none; border-color: var(--line); }
+  .day-card.today{
+    border-color: var(--purple);
+    box-shadow: 0 0 0 2px var(--purple-soft), var(--shadow);
+  }
+  .day-card::before{
+    content:'';
+    position:absolute; top:0; left:0; right:0; height: 4px;
+    background: var(--line-2);
+  }
+  .day-card.rest::before{ background: transparent; }
+  .day-card[data-app="authorlify"]::before{ background: var(--app-authorlify); }
+  .day-card[data-app="edithority"]::before{ background: var(--app-edithority); }
+  .day-card[data-app="editorialcheck"]::before{ background: var(--app-check); }
+
+  .day-header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap: 10px;
+  }
+  .day-date{
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .day-date small{
+    display:block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 6px;
+  }
+  .day-app-badge{
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 999px;
+    color: white;
+    white-space: nowrap;
+  }
+  .day-app-badge[data-app="authorlify"]{ background: var(--app-authorlify); }
+  .day-app-badge[data-app="edithority"]{ background: var(--app-edithority); }
+  .day-app-badge[data-app="editorialcheck"]{ background: var(--app-check); }
+
+  .day-theme{
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink-2);
+    font-weight: 500;
+    margin-top: auto;
+  }
+
+  .day-status-row{
+    display:flex;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .status-chip{
+    flex:1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap: 4px;
+    padding: 6px 0;
+    border-radius: 5px;
+    background: var(--bg);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .status-chip.done{
+    background: var(--good-bg);
+    color: var(--good);
+  }
+
+  .rest-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:1;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+
+  /* day view */
+  .day-view{
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 18px;
+    cursor: pointer;
+    border: 0;
+    background: none;
+    padding: 6px 0;
+  }
+  .back-link:hover{ color: var(--purple-deep); }
+
+  .day-view-header{
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .day-view-title{
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--ink);
+    margin: 0;
+  }
+  .day-view-title .app-tag{
+    display:inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    color: white;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .day-view-meta{
+    font-size: 13px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.7;
+  }
+  .day-view-meta strong{
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .platform-stack{
+    display:flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .platform-card{
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .platform-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .platform-name{
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+  }
+  .platform-name .letter{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width: 28px; height: 28px;
+    background: var(--ink);
+    color: white;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .platform-char-count{
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .platform-body{
+    padding: 22px 24px 20px;
+  }
+  .post-text{
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    margin: 0 0 18px;
+  }
+  .platform-actions{
+    display:flex;
+    gap: 10px;
+    align-items:center;
+    flex-wrap: wrap;
+  }
+  .btn{
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+    display:inline-flex;
+    align-items:center;
+    gap: 7px;
+    transition: all .15s;
+  }
+  .btn:hover{ background: var(--purple-softer); border-color: var(--purple-soft); color: var(--purple-deep); }
+  .btn.primary{
+    background: var(--purple);
+    color: white;
+    border-color: var(--purple);
+  }
+  .btn.primary:hover{ background: var(--purple-light); border-color: var(--purple-light); color: white; }
+  .btn.status-btn.done{
+    background: var(--good-bg);
+    border-color: #bbf7d0;
+    color: var(--good);
+  }
+  .btn.status-btn.done:hover{
+    background: #bbf7d0;
+    color: #166534;
+  }
+  .btn.copied{
+    background: var(--good);
+    border-color: var(--good);
+    color: white;
+  }
+  .btn.copied:hover{
+    background: var(--good);
+    color: white;
+  }
+
+  .day-view-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top: 24px;
+    margin-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+  .day-view-footer .btn{ min-width: 140px; justify-content:center; }
+
+  .rest-card{
+    text-align:center;
+    padding: 80px 40px;
+    background: white;
+    border: 1px dashed var(--line-2);
+    border-radius: var(--radius-lg);
+  }
+  .rest-card h2{
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .rest-card p{
+    color: var(--muted);
+    margin: 0;
+    font-size: 14px;
+  }
+
+  @media (max-width: 1100px){
+    .week-grid{ grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 820px){
+    .masthead{ padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 14px; }
+    .masthead-right{ width: 100%; justify-content: space-between; }
+    .subnav{ padding: 14px 20px; gap: 14px; }
+    main{ padding: 24px 20px 60px; }
+    .week-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .day-card{ min-height: 210px; padding: 14px 13px; }
+    .day-view-title{ font-size: 26px; }
+    .day-view-header{ flex-direction: column; align-items: flex-start; }
+    .day-view-meta{ text-align: left; }
+    .filter-legend{ flex-wrap: wrap; gap: 10px 16px; }
+    .login-title{ font-size: 30px; }
+    .login-card{ padding: 28px 24px; }
+  }
+  @media (max-width: 440px){
+    .week-grid{ grid-template-columns: 1fr; }
+    .masthead-logo{ width: 40px; height: 40px; }
+    .masthead-titles h1{ font-size: 16px; }
+  }
+
+  /* ── Image Generator ─────────────────────────────────────────────────────── */
+  .img-gen-section {
+    margin-top: 28px;
+    background: white;
+    border-radius: 16px;
+    border: 1.5px solid var(--line);
+    overflow: hidden;
+  }
+  .img-gen-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    user-select: none;
+  }
+  .img-gen-header:hover { background: var(--bg); }
+  .img-gen-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .img-gen-toggle { font-size: 18px; color: var(--muted); transition: transform .2s; }
+  .img-gen-toggle.open { transform: rotate(180deg); }
+  .img-gen-body { display: none; padding: 20px; }
+  .img-gen-body.open { display: block; }
+  .img-format-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .img-format-card {
+    background: var(--bg);
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    overflow: hidden;
+  }
+  .img-format-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 8px 12px 6px;
+    border-bottom: 1px solid var(--line);
+    background: white;
+  }
+  .img-canvas-wrap {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    background: #f0f0f0;
+  }
+  .img-canvas-wrap canvas {
+    max-width: 100%;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  .img-download-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: var(--purple);
+    color: white;
+    border: 0;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: .02em;
+    transition: background .15s;
+  }
+  .img-download-btn:hover { background: var(--purple-deep); }
+  .img-generate-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--purple);
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background .15s;
+  }
+  .img-generate-btn:hover { background: var(--purple-deep); }
+  @media(max-width:600px){
+    .img-format-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="login-screen" id="loginScreen">
+  <div class="login-logo">
+    <svg viewBox="0 0 512 512" width="44" height="44" aria-hidden="true">
+      <path fill="#ffffff" d="M 156.08,121.65 L 355.92,121.65 Q 360.96,121.65 360.96,126.69 L 360.96,164.89 Q 360.96,169.93 355.92,169.93 L 207.72,169.93 L 207.72,233.96 L 276.15,233.96 Q 281.19,233.96 281.19,239.00 L 281.19,273.00 Q 281.19,278.04 276.15,278.04 L 207.72,278.04 L 207.72,342.07 L 355.92,342.07 Q 360.96,342.07 360.96,347.11 L 360.96,385.31 Q 360.96,390.35 355.92,390.35 L 156.08,390.35 Q 151.04,390.35 151.04,385.31 L 151.04,126.69 Q 151.04,121.65 156.08,121.65 Z" />
+    </svg>
+  </div>
+  <h1 class="login-title">Editorial Tools</h1>
+  <p class="login-sub">Content Dashboard · Apr–Oct 2026</p>
+
+  <form class="login-card" id="loginForm" autocomplete="off">
+    <h2>Sign in</h2>
+    <p>Enter your password to access the dashboard.</p>
+    <label class="login-label" for="pw">Password</label>
+    <div class="login-input-wrap">
+      <input class="login-input" type="password" id="pw" placeholder="Enter password" autocomplete="current-password" />
+      <button class="login-toggle" type="button" id="pwToggle" aria-label="Show password">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      </button>
+    </div>
+    <button class="login-submit" type="submit">Access Dashboard</button>
+    <div class="login-error" id="loginError"></div>
+  </form>
+
+  <div class="login-footer">Editorial Tools · 180-Day Content Calendar</div>
+</section>
+
+<div class="app" id="app">
+
+  <header class="masthead">
+    <div class="masthead-left">
+      <div class="masthead-logo">
+        <svg viewBox="0 0 512 512" width="28" height="28" aria-hidden="true">
+          <path fill="#ffffff" d="M 156.08,121.65 L 355.92,121.65 Q 360.96,121.65 360.96,126.69 L 360.96,164.89 Q 360.96,169.93 355.92,169.93 L 207.72,169.93 L 207.72,233.96 L 276.15,233.96 Q 281.19,233.96 281.19,239.00 L 281.19,273.00 Q 281.19,278.04 276.15,278.04 L 207.72,278.04 L 207.72,342.07 L 355.92,342.07 Q 360.96,342.07 360.96,347.11 L 360.96,385.31 Q 360.96,390.35 355.92,390.35 L 156.08,390.35 Q 151.04,390.35 151.04,385.31 L 151.04,126.69 Q 151.04,121.65 156.08,121.65 Z" />
+        </svg>
+      </div>
+      <div class="masthead-titles">
+        <h1>Editorial Tools</h1>
+        <div class="sub">Content Dashboard · 180 Days</div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <div class="progress-widget">
+        <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <span id="progressLabel">0 / 0 posted</span>
+      </div>
+      <span id="syncIndicator" style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;"></span>
+      <button class="masthead-btn" id="signOut">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="subnav">
+    <div class="view-toggle" role="tablist">
+      <button data-view="week" class="active">Week</button>
+      <button data-view="day">Day</button>
+      <button data-view="archive">Archive</button>
+    </div>
+    <div class="week-nav" id="weekNav">
+      <button id="prevBtn" aria-label="Previous">← Prev</button>
+      <span class="week-label" id="weekLabel">—</span>
+      <button id="nextBtn" aria-label="Next">Next →</button>
+      <button id="todayBtn">Today</button>
+    </div>
+    <div class="filter-legend">
+      <span><span class="dot" style="background: var(--app-authorlify)"></span>Authorlify</span>
+      <span><span class="dot" style="background: var(--app-edithority)"></span>Edithority</span>
+      <span><span class="dot" style="background: var(--app-check)"></span>Editorial Check</span>
+    </div>
+  </nav>
+
+  <main id="main"></main>
+</div>
+
+
+<script>
+(() => {
+  const PASSWORD = 'Admin/2022';
+  const AUTH_KEY = 'et-auth-v1';
+
+  // ── Supabase Sync (cross-device) + Cookie fallback ────────────────────────
+  const SB_URL    = 'https://eyutohneqlttgwvrelqj.supabase.co';
+  const SB_KEY    = 'sb_publishable_pQeYTvl0FXOdVvDwamtTtg_UAV7eSLn';
+  const SB_TABLE  = 'post_status';
+
+  // Cookie helpers (fallback)
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    try { document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Strict`; } catch(e) {}
+  }
+  function getCookie(name) {
+    const prefix = name + '=';
+    for (const part of document.cookie.split(';')) {
+      const c = part.trim();
+      if (c.startsWith(prefix)) { try { return decodeURIComponent(c.substring(prefix.length)); } catch(e) { return null; } }
+    }
+    return null;
+  }
+  function saveStatusLocal(status) {
+    try { setCookie('et_status_v2', JSON.stringify(Object.keys(status)), 365); } catch(e) {}
+  }
+  function loadStatusLocal() {
+    try {
+      const raw = getCookie('et_status_v2');
+      if (!raw) return {};
+      const keys = JSON.parse(raw);
+      if (Array.isArray(keys)) { const o = {}; keys.forEach(k => o[k] = true); return o; }
+      return typeof keys === 'object' ? keys : {};
+    } catch(e) { return {}; }
+  }
+
+  // Supabase REST helpers
+  const SB_HEADERS = {
+    'apikey': SB_KEY,
+    'Authorization': `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+  };
+
+  async function loadStatusRemote() {
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?select=key`, { headers: SB_HEADERS });
+      if (!res.ok) return null;
+      const rows = await res.json();
+      if (!Array.isArray(rows)) return null;
+      const obj = {};
+      rows.forEach(r => { if (r.key) obj[r.key] = true; });
+      return obj;
+    } catch(e) { return null; }
+  }
+
+  async function upsertKey(k) {
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}`, {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ key: k }),
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        console.error('Supabase upsert error:', res.status, err);
+      }
+    } catch(e) { console.error('upsertKey failed:', e); }
+  }
+
+  async function saveStatusRemote(status) {
+    const keys = Object.keys(status);
+    if (!keys.length) return;
+    // Send each key individually for reliability
+    for (const k of keys) {
+      await upsertKey(k);
+    }
+  }
+
+  async function deleteStatusRemote(key) {
+    try {
+      await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?key=eq.${encodeURIComponent(key)}`, {
+        method: 'DELETE',
+        headers: SB_HEADERS,
+      });
+    } catch(e) {}
+  }
+
+  async function loadStatus() {
+    const remote = await loadStatusRemote();
+    if (remote) { saveStatusLocal(remote); return remote; }
+    return loadStatusLocal();
+  }
+
+  function showSync(msg, color) {
+    const el = document.getElementById('syncIndicator');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = color || 'rgba(255,255,255,0.7)';
+  }
+
+  let _saveTimer = null;
+  function saveStatus(status) {
+    saveStatusLocal(status);
+    showSync('⟳ Saving…');
+    clearTimeout(_saveTimer);
+    // Always use state.status at time of execution (not a stale copy)
+    _saveTimer = setTimeout(async () => {
+      await saveStatusRemote(state.status);
+      showSync('✓ Synced', 'rgba(255,255,255,0.95)');
+      setTimeout(() => showSync(''), 2500);
+    }, 800);
+  }
+
+  // Poll for remote changes every 30s
+  function startSyncPolling() {
+    setInterval(async () => {
+      const remote = await loadStatusRemote();
+      if (!remote) return;
+      const remoteKeys = Object.keys(remote).sort().join(',');
+      const localKeys  = Object.keys(state.status).sort().join(',');
+      if (remoteKeys !== localKeys) {
+        state.status = remote;
+        saveStatusLocal(remote);
+        render();
+      }
+    }, 30000);
+  }
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  function isAuthed() { return sessionStorage.getItem(AUTH_KEY) === '1'; }
+  function setAuthed(v) {
+    if (v) sessionStorage.setItem(AUTH_KEY, '1');
+    else sessionStorage.removeItem(AUTH_KEY);
+  }
+  function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').classList.remove('visible');
+  }
+  function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    initApp();
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pw = document.getElementById('pw').value;
+    const err = document.getElementById('loginError');
+    if (pw === PASSWORD) { setAuthed(true); err.textContent = ''; showApp(); }
+    else { err.textContent = 'Incorrect password. Try again.'; document.getElementById('pw').value = ''; document.getElementById('pw').focus(); }
+  });
+  document.getElementById('pwToggle').addEventListener('click', () => {
+    const input = document.getElementById('pw');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    input.focus();
+  });
+  document.getElementById('signOut').addEventListener('click', () => { setAuthed(false); showLogin(); document.getElementById('pw').value = ''; });
+
+  // ── App state ───────────────────────────────────────────────────────────────
+  let DATA, SCHEDULE, META;
+  const state = { view: 'week', weekStart: null, dayIndex: null, status: {}, initialized: false };
+
+  function getKey(dateStr, platform) { return `${dateStr}:${platform}`; }
+  function isPosted(dateStr, platform) { return !!state.status[getKey(dateStr, platform)]; }
+  function isDayFullyPosted(entry) {
+    if (entry.rest) return false;
+    return ['x','threads','instagram'].every(p => isPosted(entry.date, p));
+  }
+  function setPosted(dateStr, platform, val) {
+    const k = getKey(dateStr, platform);
+    if (val) {
+      state.status[k] = true;
+      saveStatus(state.status);
+    } else {
+      delete state.status[k];
+      saveStatusLocal(state.status);
+      deleteStatusRemote(k);
+    }
+    updateProgress();
+  }
+
+  function parseDate(str) { const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
+  function fmtDateStr(date) {
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  }
+  function startOfWeek(date) {
+    const d = new Date(date);
+    const dow = d.getDay();
+    const offset = dow === 0 ? -6 : 1 - dow;
+    d.setDate(d.getDate() + offset);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function fmtWeekLabel(monday) {
+    const end = new Date(monday); end.setDate(end.getDate() + 6);
+    const opt = { month: 'short', day: 'numeric' };
+    return `${monday.toLocaleDateString('en-US', opt)} — ${end.toLocaleDateString('en-US', opt)}, ${end.getFullYear()}`;
+  }
+  function daysOfWeek(monday) {
+    const out = [];
+    for (let i=0;i<7;i++) { const d = new Date(monday); d.setDate(monday.getDate()+i); out.push(d); }
+    return out;
+  }
+  function getEntryByDate(dateStr) { return SCHEDULE.find(s => s.date === dateStr); }
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function updateProgress() {
+    const contentDays = SCHEDULE.filter(s => !s.rest);
+    const totalDays = contentDays.length;                          // 154 content days
+    const postedDays = contentDays.filter(e => isDayFullyPosted(e)).length;
+    const pct = totalDays ? Math.round((postedDays / totalDays) * 100) : 0;
+    document.getElementById('progressLabel').textContent = `${postedDays} / ${totalDays} posted`;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  const mainEl = () => document.getElementById('main');
+
+  function render() {
+    if (state.view === 'week') renderWeek();
+    else if (state.view === 'day') renderDay();
+    else if (state.view === 'archive') renderArchive();
+    syncNav();
+    updateProgress();
+  }
+
+  function syncNav() {
+    document.querySelectorAll('.view-toggle button').forEach(b => {
+      b.classList.toggle('active', b.dataset.view === state.view);
+    });
+    const showWeekNav = state.view === 'week';
+    document.getElementById('weekNav').style.visibility = showWeekNav ? 'visible' : 'hidden';
+    if (showWeekNav) document.getElementById('weekLabel').textContent = fmtWeekLabel(state.weekStart);
+  }
+
+  // Week view — only show days that are NOT fully posted
+  function renderWeek() {
+    const days = daysOfWeek(state.weekStart);
+    const todayStr = fmtDateStr(new Date());
+    const grid = document.createElement('div');
+    grid.className = 'week-grid';
+
+    days.forEach(d => {
+      const ds = fmtDateStr(d);
+      const entry = getEntryByDate(ds);
+      const card = document.createElement('div');
+      card.className = 'day-card';
+
+      if (!entry) {
+        card.classList.add('rest');
+        card.innerHTML = `<div class="day-header"><div class="day-date">${d.getDate()}<small>${d.toLocaleDateString('en-US',{weekday:'short'})}</small></div></div><div class="rest-label">—</div>`;
+      } else if (entry.rest) {
+        card.classList.add('rest');
+        card.innerHTML = `<div class="day-header"><div class="day-date">${d.getDate()}<small>${entry.weekday_short}</small></div></div><div class="rest-label">Rest day</div>`;
+      } else {
+        // If fully posted → show as archived card (greyed, no click)
+        const fullyPosted = isDayFullyPosted(entry);
+        card.dataset.app = entry.app;
+        if (ds === todayStr) card.classList.add('today');
+        if (fullyPosted) {
+          card.classList.add('archived');
+          card.innerHTML = `
+            <div class="day-header">
+              <div class="day-date" style="opacity:.4">${d.getDate()}<small>${entry.weekday_short}</small></div>
+              <span class="day-app-badge" data-app="${entry.app}" style="opacity:.4">${entry.app_name}</span>
+            </div>
+            <div class="day-theme" style="opacity:.35">${escapeHTML(entry.theme)}</div>
+            <div class="day-status-row">
+              <div class="status-chip done" style="flex:1;justify-content:center">✓ Archived</div>
+            </div>`;
+        } else {
+          const statusHTML = ['x','threads','instagram'].map(p => {
+            const done = isPosted(entry.date, p);
+            const lbl = p === 'x' ? 'X' : p === 'threads' ? 'T' : 'I';
+            return `<div class="status-chip ${done ? 'done' : ''}">${done ? '✓' : '○'} ${lbl}</div>`;
+          }).join('');
+          card.innerHTML = `
+            <div class="day-header">
+              <div class="day-date">${d.getDate()}<small>${entry.weekday_short}</small></div>
+              <span class="day-app-badge" data-app="${entry.app}">${entry.app_name}</span>
+            </div>
+            <div class="day-theme">${escapeHTML(entry.theme)}</div>
+            <div class="day-status-row">${statusHTML}</div>`;
+          card.addEventListener('click', () => openDay(entry.date));
+        }
+      }
+      grid.appendChild(card);
+    });
+    mainEl().innerHTML = '';
+    mainEl().appendChild(grid);
+  }
+
+  // Archive view — only fully posted days
+  function renderArchive() {
+    const archived = SCHEDULE.filter(e => !e.rest && isDayFullyPosted(e));
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'max-width:700px;margin:0 auto;';
+
+    if (archived.length === 0) {
+      wrap.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--muted);font-size:15px;">
+        <div style="font-size:36px;margin-bottom:16px;">📭</div>
+        <div style="font-weight:600;margin-bottom:8px;">No archived posts yet</div>
+        <div>Posts you mark as fully posted will appear here.</div>
+      </div>`;
+    } else {
+      const title = document.createElement('div');
+      title.style.cssText = 'font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;';
+      title.textContent = `${archived.length} days archived`;
+      wrap.appendChild(title);
+
+      archived.reverse().forEach(entry => {
+        const d = parseDate(entry.date);
+        const dateFmt = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+        const appColor = entry.app === 'authorlify' ? 'var(--app-authorlify)' : entry.app === 'edithority' ? 'var(--app-edithority)' : 'var(--app-check)';
+        const row = document.createElement('div');
+        row.style.cssText = 'background:white;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;';
+        row.innerHTML = `
+          <div style="flex:1;">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:3px;">${dateFmt}</div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink);">${escapeHTML(entry.theme)}</div>
+          </div>
+          <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;color:white;background:${appColor};white-space:nowrap;">${entry.app_name}</span>
+          <div style="font-size:12px;color:var(--good);font-weight:600;white-space:nowrap;">✓ Done</div>`;
+        row.addEventListener('click', () => openDay(entry.date));
+        wrap.appendChild(row);
+      });
+    }
+    mainEl().innerHTML = '';
+    mainEl().appendChild(wrap);
+  }
+
+  // Day view
+  function renderDay() {
+    const idx = state.dayIndex;
+    const entry = SCHEDULE[idx];
+    const wrap = document.createElement('div');
+    wrap.className = 'day-view';
+
+    const d = parseDate(entry.date);
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-link';
+    backBtn.innerHTML = '← Back';
+    backBtn.addEventListener('click', () => { state.view = 'week'; render(); });
+    wrap.appendChild(backBtn);
+
+    if (entry.rest) {
+      wrap.innerHTML += `<div class="rest-card"><h2>Take Sunday off.</h2><p>The algorithm will survive.</p></div>`;
+      mainEl().innerHTML = '';
+      mainEl().appendChild(wrap);
+      attachDayFooter(wrap, idx);
+      return;
+    }
+
+    const appColorVar = entry.app === 'authorlify' ? 'var(--app-authorlify)' : entry.app === 'edithority' ? 'var(--app-edithority)' : 'var(--app-check)';
+    const header = document.createElement('div');
+    header.className = 'day-view-header';
+    header.innerHTML = `
+      <h1 class="day-view-title">
+        ${d.toLocaleDateString('en-US', { month:'long', day:'numeric' })}
+        <span class="app-tag" style="background:${appColorVar}">${entry.app_name}</span>
+      </h1>
+      <div class="day-view-meta"><strong>Day ${entry.day_index}</strong> of 180<br>${entry.weekday} · ${escapeHTML(entry.theme)}</div>`;
+    wrap.appendChild(header);
+
+    const stack = document.createElement('div');
+    stack.className = 'platform-stack';
+
+    [
+      { key:'x', name:'X (Twitter)', letter:'X' },
+      { key:'threads', name:'Threads', letter:'T' },
+      { key:'instagram', name:'Instagram', letter:'I' },
+    ].forEach(p => {
+      const text = entry.posts[p.key];
+      const done = isPosted(entry.date, p.key);
+      const card = document.createElement('article');
+      card.className = 'platform-card';
+      card.innerHTML = `
+        <div class="platform-head">
+          <div class="platform-name"><span class="letter">${p.letter}</span> ${p.name}</div>
+          <div class="platform-char-count">${text.length} chars</div>
+        </div>
+        <div class="platform-body">
+          <p class="post-text">${escapeHTML(text)}</p>
+          <div class="platform-actions">
+            <button class="btn primary copy-btn"><span class="copy-label">Copy to clipboard</span></button>
+            <button class="btn status-btn ${done ? 'done' : ''}">${done ? '✓ Posted' : '○ Mark as posted'}</button>
+          </div>
+        </div>`;
+
+      card.querySelector('.copy-btn').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const label = btn.querySelector('.copy-label');
+        try {
+          await navigator.clipboard.writeText(text);
+          const orig = label.textContent;
+          btn.classList.add('copied'); label.textContent = '✓ Copied';
+          setTimeout(() => { btn.classList.remove('copied'); label.textContent = orig; }, 1500);
+        } catch { alert('Could not copy — please select and copy manually.'); }
+      });
+
+      card.querySelector('.status-btn').addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        const newVal = !isPosted(entry.date, p.key);
+        setPosted(entry.date, p.key, newVal);
+        btn.classList.toggle('done', newVal);
+        btn.textContent = newVal ? '✓ Posted' : '○ Mark as posted';
+        // If all 3 now posted → auto-switch to week view after brief delay
+        if (isDayFullyPosted(entry)) {
+          setTimeout(() => { state.view = 'week'; render(); }, 800);
+        }
+      });
+
+      stack.appendChild(card);
+    });
+
+    wrap.appendChild(stack);
+
+    // Image generator section
+    const imgSection = buildImageSection(entry);
+    wrap.appendChild(imgSection);
+
+    attachDayFooter(wrap, idx);
+    mainEl().innerHTML = '';
+    mainEl().appendChild(wrap);
+  }
+
+  function attachDayFooter(wrap, idx) {
+    const footer = document.createElement('div');
+    footer.className = 'day-view-footer';
+    const prev = document.createElement('button');
+    prev.className = 'btn'; prev.textContent = '← Previous day';
+    prev.disabled = idx === 0;
+    if (idx === 0) prev.style.opacity = 0.4;
+    prev.addEventListener('click', () => { if(idx>0){state.dayIndex=idx-1;render();} });
+    const next = document.createElement('button');
+    next.className = 'btn'; next.textContent = 'Next day →';
+    next.disabled = idx >= SCHEDULE.length - 1;
+    if (idx >= SCHEDULE.length - 1) next.style.opacity = 0.4;
+    next.addEventListener('click', () => { if(idx<SCHEDULE.length-1){state.dayIndex=idx+1;render();} });
+    footer.appendChild(prev); footer.appendChild(next);
+    wrap.appendChild(footer);
+  }
+
+  function openDay(dateStr) {
+    const idx = SCHEDULE.findIndex(s => s.date === dateStr);
+    if (idx < 0) return;
+    state.dayIndex = idx;
+    state.view = 'day';
+    render();
+  }
+
+  // ── Init ────────────────────────────────────────────────────────────────────
+  async function initApp() {
+    if (state.initialized) return;
+    state.initialized = true;
+    document.getElementById('main').innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);font-size:14px;">Loading content…</div>';
+    // Load status and posts in parallel
+    const [status, postsRes] = await Promise.all([
+      loadStatus(),
+      fetch('/posts.json').then(r => r.json()).catch(() => null),
+    ]);
+    state.status = status || {};
+    if (!postsRes) {
+      document.getElementById('main').innerHTML = '<div style="text-align:center;padding:60px;color:#dc2626;">Failed to load content. Please refresh.</div>';
+      return;
+    }
+    DATA = postsRes;
+    SCHEDULE = DATA.schedule;
+    META = DATA.meta;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const startDay = parseDate(META.start_date);
+    state.weekStart = startOfWeek(today < startDay ? startDay : today);
+    bindNav();
+    render();
+    startSyncPolling();
+  }
+
+
+
+  function bindNav() {
+
+    document.querySelectorAll('.view-toggle button').forEach(b => {
+      b.addEventListener('click', () => {
+        state.view = b.dataset.view;
+        if (state.view === 'day' && state.dayIndex === null) {
+          const idx = SCHEDULE.findIndex(s => s.date === fmtDateStr(new Date()));
+          state.dayIndex = idx >= 0 ? idx : 0;
+        }
+        render();
+      });
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      const d = new Date(state.weekStart); d.setDate(d.getDate() - 7);
+      state.weekStart = d; render();
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      const d = new Date(state.weekStart); d.setDate(d.getDate() + 7);
+      state.weekStart = d; render();
+    });
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      state.weekStart = startOfWeek(new Date());
+      state.view = 'week'; render();
+    });
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  }
+
+  if (isAuthed()) showApp(); else showLogin();
+})();
+
+  // ── Image Generator ──────────────────────────────────────────────────────────
+  const APP_BRANDS = {
+    authorlify:     { name: 'Authorlify',      grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'authorlify.com' },
+    edithority:     { name: 'Edithority',      grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'edithority.com' },
+    editorialcheck: { name: 'Editorial Check', grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'editorialcheck.com' },
+    editorial_tools:{ name: 'Editorial Tools', grad1: '#6D28D9', grad2: '#8B5CF6', accent: '#f59e0b', url: 'linktr.ee/EditorialTools' },
+  };
+
+  const IMG_FORMATS = [
+    { id: 'instagram', label: 'Instagram', w: 1080, h: 1080, display: 270 },
+    { id: 'x',        label: 'X (Twitter)', w: 1200, h: 675,  display: 270 },
+    { id: 'threads',  label: 'Threads',    w: 1080, h: 1080, display: 270 },
+  ];
+
+  function wrapText(ctx, text, x, y, maxW, lineH) {
+    const words = text.split(' ');
+    let line = '';
+    let lines = [];
+    for (let w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxW && line) {
+        lines.push(line);
+        line = w;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines.push(line);
+    lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineH));
+    return lines.length;
+  }
+
+  function drawImage(canvas, entry, platform, postText) {
+    const fmt = IMG_FORMATS.find(f => f.id === platform);
+    const brand = APP_BRANDS[entry.app] || APP_BRANDS.editorial_tools;
+    const W = fmt.w, H = fmt.h;
+    const scale = fmt.display / W;
+    canvas.width  = fmt.display;
+    canvas.height = Math.round(H * scale);
+    _drawOnCanvas(canvas, brand, platform, postText, scale);
+  }
+
+  function drawImageFull(canvas, entry, platform, postText) {
+    const fmt = IMG_FORMATS.find(f => f.id === platform);
+    const brand = APP_BRANDS[entry.app] || APP_BRANDS.editorial_tools;
+    canvas.width  = fmt.w;
+    canvas.height = fmt.h;
+    _drawOnCanvas(canvas, brand, platform, postText, 1);
+  }
+
+  function _drawOnCanvas(canvas, brand, platform, postText, s) {
+    const W = canvas.width, H = canvas.height;
+    const ctx = canvas.getContext('2d');
+    const cx = W / 2;
+    const cy = H / 2;
+    const isX = platform === 'x';
+    const pad = 64*s;
+    const narrowW = W * 0.70;
+
+    // Background
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, brand.grad1);
+    bg.addColorStop(1, brand.grad2);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Decorative circles
+    ctx.save();
+    ctx.globalAlpha = 0.12; ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(W - 60*s, -60*s, 300*s, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 0.07;
+    ctx.beginPath(); ctx.arc(-50*s, H + 50*s, 240*s, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Hook only
+    const hook = postText.split('\n').map(l => l.trim()).filter(l => l)[0] || '';
+    const platLabel = platform === 'x' ? '𝕏 Twitter' : platform === 'threads' ? 'Threads' : 'Instagram';
+
+    // ── FOOTER (bottom) ─────────────────────────────────────────
+    const footerH = 80*s;
+    const footerY = H - footerH;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(0, footerY, W, footerH);
+    ctx.font = `600 ${20*s}px Montserrat, sans-serif`;
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.90)';
+    ctx.fillText(brand.url, cx, footerY + footerH/2);
+
+    // ── TOP BAR ─────────────────────────────────────────────────
+    const topH = 120*s;
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
+    ctx.fillRect(0, 0, W, topH);
+
+    // App badge — centered
+    ctx.font = `700 ${18*s}px Montserrat, sans-serif`;
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    const bTxt = brand.name.toUpperCase();
+    const bPad = 20*s, bH = 46*s;
+    const bW = ctx.measureText(bTxt).width + bPad * 2;
+    const bY = (topH - bH) / 2;
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    roundRect(ctx, cx - bW/2, bY, bW, bH, 8*s); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(bTxt, cx, bY + bH/2);
+
+    // Platform name — centered below badge
+    ctx.font = `700 ${22*s}px Montserrat, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = brand.accent;
+    ctx.fillText(platLabel, cx, bY + bH + 18*s);
+
+    // ── HOOK — fills middle space ────────────────────────────────
+    const hookAreaY = topH + 40*s;
+    const hookAreaH = footerY - hookAreaY - 40*s;
+
+    // Auto-fit: find biggest font that fits
+    let hookSize = isX ? 72*s : 96*s;
+    while (hookSize > 40*s) {
+      ctx.font = `800 ${hookSize}px Montserrat, sans-serif`;
+      const words = hook.split(' ');
+      let line = '', lines = 0;
+      for (let w of words) {
+        const t = line ? line + ' ' + w : w;
+        if (ctx.measureText(t).width > narrowW && line) { lines++; line = w; }
+        else line = t;
+      }
+      if (line) lines++;
+      if (lines * hookSize * 1.22 <= hookAreaH) break;
+      hookSize -= 4*s;
+    }
+    const hookLineH = hookSize * 1.22;
+
+    // Split into lines
+    ctx.font = `800 ${hookSize}px Montserrat, sans-serif`;
+    const words = hook.split(' ');
+    let line = '', hookLines = [];
+    for (let w of words) {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > narrowW && line) { hookLines.push(line); line = w; }
+      else line = t;
+    }
+    if (line) hookLines.push(line);
+
+    const textH = hookLines.length * hookLineH;
+    const hookY = hookAreaY + (hookAreaH - textH) / 2;
+
+    // Draw with white→accent gradient per line
+    hookLines.forEach((lineText, i) => {
+      const y = hookY + i * hookLineH;
+      const tw = ctx.measureText(lineText).width;
+      const tg = ctx.createLinearGradient(cx - tw/2, y, cx + tw/2, y);
+      tg.addColorStop(0, '#ffffff');
+      tg.addColorStop(1, brand.accent);
+      ctx.fillStyle = tg;
+      ctx.font = `800 ${hookSize}px Montserrat, sans-serif`;
+      ctx.textBaseline = 'top'; ctx.textAlign = 'center';
+      ctx.fillText(lineText, cx, y);
+    });
+  }
+  function countLinesFixed(ctx, text, maxW, size) {
+    ctx.font = `800 ${size}px 'Playfair Display', serif`;
+    const words = text.split(' ');
+    let line = '', n = 0;
+    for (let w of words) {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > maxW && line) { n++; line = w; }
+      else line = t;
+    }
+    if (line) n++;
+    return n;
+  }
+  function countLines(ctx, text, maxW, size) {
+    ctx.font = `800 ${size}px 'Playfair Display', serif`;
+    const words = text.split(' ');
+    let line = '', lines = 0;
+    for (let w of words) {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width > maxW && line) { lines++; line = w; }
+      else line = t;
+    }
+    if (line) lines++;
+    return lines;
+  }
+  function wrapTextCenter(ctx, text, cx, y, maxW, lineH) {
+    const words = text.split(' ');
+    let line = '', lines = [];
+    for (let w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; }
+      else line = test;
+    }
+    if (line) lines.push(line);
+    lines.forEach((l, i) => ctx.fillText(l, cx, y + i * lineH));
+    return lines.length;
+  }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function shadeColor(hex, pct) {
+    const num = parseInt(hex.slice(1), 16);
+    const r = Math.min(255, Math.max(0, (num >> 16) + pct));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + pct));
+    const b = Math.min(255, Math.max(0, (num & 0xff) + pct));
+    return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+
+  function buildImageSection(entry) {
+    const section = document.createElement('div');
+    section.className = 'img-gen-section';
+
+    const header = document.createElement('div');
+    header.className = 'img-gen-header';
+    header.innerHTML = `
+      <div class="img-gen-title">🖼 Generate Social Images</div>
+      <span class="img-gen-toggle">▾</span>`;
+    section.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'img-gen-body';
+
+    // Generate button
+    const genBtn = document.createElement('button');
+    genBtn.className = 'img-generate-btn';
+    genBtn.innerHTML = '✦ Generate Images for All Platforms';
+    body.appendChild(genBtn);
+
+    // Format grid (hidden until generated)
+    const grid = document.createElement('div');
+    grid.className = 'img-format-grid';
+    grid.style.display = 'none';
+    grid.style.marginTop = '16px';
+
+    const canvases = {};
+
+    IMG_FORMATS.forEach(fmt => {
+      const card = document.createElement('div');
+      card.className = 'img-format-card';
+
+      const label = document.createElement('div');
+      label.className = 'img-format-label';
+      label.textContent = fmt.label;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'img-canvas-wrap';
+
+      const canvas = document.createElement('canvas');
+      canvases[fmt.id] = canvas;
+      wrap.appendChild(canvas);
+
+      const dlBtn = document.createElement('button');
+      dlBtn.className = 'img-download-btn';
+      dlBtn.textContent = '⬇ Download ' + fmt.label;
+      dlBtn.addEventListener('click', () => {
+        // Draw at full resolution for download
+        const fullCanvas = document.createElement('canvas');
+        drawImage(fullCanvas, entry, fmt.id, entry.posts[fmt.id]);
+        // Override to full res
+        const fullFmt = IMG_FORMATS.find(f => f.id === fmt.id);
+        fullCanvas.width  = fullFmt.w;
+        fullCanvas.height = fullFmt.h;
+        const ctx2 = fullCanvas.getContext('2d');
+        // redraw at full size
+        drawImageFull(fullCanvas, entry, fmt.id, entry.posts[fmt.id]);
+        const link = document.createElement('a');
+        link.download = `${entry.app}-${fmt.id}-${entry.date}.png`;
+        link.href = fullCanvas.toDataURL('image/png');
+        link.click();
+      });
+
+      card.appendChild(label);
+      card.appendChild(wrap);
+      card.appendChild(dlBtn);
+      grid.appendChild(card);
+    });
+
+    body.appendChild(grid);
+    section.appendChild(body);
+
+    // Toggle
+    header.addEventListener('click', () => {
+      const isOpen = body.classList.toggle('open');
+      header.querySelector('.img-gen-toggle').classList.toggle('open', isOpen);
+    });
+
+    // Generate
+    genBtn.addEventListener('click', () => {
+      grid.style.display = 'grid';
+      IMG_FORMATS.forEach(fmt => {
+        drawImage(canvases[fmt.id], entry, fmt.id, entry.posts[fmt.id]);
+      });
+      genBtn.innerHTML = '↺ Regenerate';
+    });
+
+    return section;
+  }
+
+
+</script>
+</body>
+</html>
